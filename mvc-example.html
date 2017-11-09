@@ -1,0 +1,82 @@
+<html>
+<head>
+<style>
+body{
+    font-family:arial;
+}
+#element1{
+    padding: 12px;
+}
+button{
+    border: none;
+    background: #e3e3e3;
+    padding: 7px 12px;
+    cursor: pointer;
+    margin: 12px;
+}
+</style>
+</head>
+<body>
+<div id='element1'></div>
+<button id='clickElem'>button</button>
+<script src='icemvc.js'></script>
+<script>
+
+/*
+* This creates the component.
+* once it exists, we can tell it how to interact with the current page. with the actionRegistry
+*/
+var component = new iceMVC();
+
+/*
+* - This is where we set our templates.
+*/
+
+component.view.addTemplates({
+            'index':`<div>Hello world!  Click the button to trigger the controller</div>`,
+            'page-2':`<div>Tada! the view was updated! Click this new button to reload the default template.</div><button id='dynamic'>reload default</button>`,
+        });
+/*
+* This is where we store our routing information for our templates.
+* for this example we are simply simulating a routes table.  by manually adding the routes as JSON.
+*/
+
+component.model.db.addRoutes({
+            'default': 'index',
+            'action1': 'page-2',
+        });
+/*
+* - This is where we how our controller syncs to our view!
+*/
+component.controller.actionRegistry = {
+
+    'action1': {
+    	route: 'action1',
+        update: '#element1',
+        init: ['click', '#clickElem'],
+        callback: function(_this){
+        	//here we register a new action for once the view has updated.
+        	_this.controller.init({
+    	        route: 'default',
+                update: '#element1',
+                init: ['click', '#dynamic'],
+                }
+            );
+        }
+     },
+
+    'default': {
+    	route: 'default',
+        update: '#element1',
+     },
+};
+
+/*
+* This sets all all the events, including the initial load.  
+* Make sure this is called after the HTML we need for the initial load is parsed.
+*/
+component.controller.init();
+
+</script>
+</body>
+<html>
